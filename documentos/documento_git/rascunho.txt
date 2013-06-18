@@ -1,0 +1,21 @@
+git clone https://github.com/wandertaz/Sistema.git sitema
+
+git config --global user.name "Wander(casa)"
+git config --global user.email "wandertaz@yahoo.com.br"
+
+
+git commit -a "Git documentação"
+
+cd sistema
+
+cd /c/wamp/
+
+git commit -m "Git documentacao"
+
+git push origin master
+
+
+everting up-to-date
+
+
+git add.
