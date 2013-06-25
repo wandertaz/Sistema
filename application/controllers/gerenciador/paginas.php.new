@@ -1,0 +1,124 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Paginas extends CI_Controller {
+
+	var $titulo 		= 'Páginas';
+	var $dir 			= 'multitools/paginas/';
+	var $controller 	= 'multitools/paginas';
+	var $title_sing 	= 'Página';
+	var $per_page 		= 20;
+	var $table 			= 'paginas';
+	var $join			= array('idiomas' => array('where' => 'idiomas.id = idioma_id', 'type' => 'inner'));
+
+	public function __construct(){
+		parent::__construct();
+		check_login();
+	}
+
+	public function index($offset = 0){
+
+		//Cabeçalho
+		$titulo = $this->titulo;
+		get_header($titulo, TRUE);
+		$data['h1'] = $this->titulo;
+
+		//Menu
+		get_menu();
+
+		//Registros
+		$data['registros'] = $this->default_model->get_all($this->table, array($this->table.'.*, idiomas.nome as idioma'), $offset, $this->per_page, array(), $this->join, $this->table.'.id', 'ASC');
+
+		//Parâmetros
+		$data['paginacao']   = $this->_pagination($this->table);
+		$data['controller']  = $this->controller;
+		$data['title_sing'] = $this->title_sing;
+
+		//Carrega view
+		$this->load->view($this->dir.'index', $data);
+		get_footer(TRUE);
+	}
+
+	/*public function adicionar(){
+
+		//Cabeçalho
+		$titulo = $this->titulo;
+		get_header($titulo, TRUE);
+		$data['h1'] = 'Adicionar '.$this->title_sing;
+
+		//Menu
+		get_menu();
+
+		//Parâmetros
+		$data['controller'] = $this->controller;
+		$data['title_sing'] = $this->title_sing;
+
+		//Busca Idiomas
+		$data['idiomas'] = $this->default_model->listaAssociativa('idiomas', 'nome');
+
+		//Carrega view
+		$this->load->view($this->dir.'form', $data);
+		get_footer(TRUE);
+	}*/
+
+	public function editar($id){
+
+		//Cabeçalho
+		$titulo = $this->titulo;
+		get_header($titulo, TRUE);
+		$data['h1'] = 'Editar '.$this->title_sing;;
+
+		//Menu
+		get_menu();
+
+		//Busca registro
+		$data['registro'] = $this->default_model->get_by_id($this->table, $id);
+
+		//Parâmetros
+		$data['controller'] = $this->controller;
+		$data['title_sing'] = $this->title_sing;
+
+		//Busca Idiomas
+		$data['idiomas'] = $this->default_model->listaAssociativa('idiomas', 'nome');
+
+		//Carrega view
+		$this->load->view($this->dir.'form', $data);
+		get_footer(TRUE);
+	}
+
+	public function salvar()
+	{
+		//Recebe Post
+		$data = $_POST;
+
+		//Library de Upload
+		$config['upload_path']   = './assets/uploads/';
+		$config['allowed_types'] = 'jpeg|jpg|gif|png';
+		$this->load->library('upload', $config);
+
+		//Upload da imagem
+		if(!empty($_FILES['imagem']['name'])){
+			if($this->upload->do_upload('imagem')){
+
+				if(isset($data["id"]) && $data["id"]){
+					$registro = $this->default_model->get_by_id($this->table, $data["id"]);
+					@unlink('./assets/uploads/'.$registro->imagem);
+				}
+				$data_file      = $this->upload->data();
+				$data['imagem'] = $data_file['file_name'];
+			}
+			else{
+				$this->session->set_flashdata('msg', $this->upload->display_errors());
+				redirect($this->controller);
+			}
+		}
+
+		//Salva so dados (Verificando se é edição ou inserção)
+		if(isset($data["id"]) && $data["id"])
+			$rows_affected = $this->default_model->update($this->table, $_POST['id'], $data);
+		else{
+			
+                    
+                }
+                
+        }
+}
